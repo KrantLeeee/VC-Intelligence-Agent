@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投资情报系统 · Investment Intelligence System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080E;
+  --bg2: #0F0F18;
+  --bg3: #161622;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --gold: #C9A84C;
+  --gold2: #E8C97A;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-dim2: rgba(201,168,76,0.22);
+  --text: #E8E4D8;
+  --text2: #9B9690;
+  --text3: #857F79; /* raised: contrast 4.6:1 on --bg, WCAG AA */
+  --teal: #2ABFAA;
+  --teal-dim: rgba(42,191,170,0.1);
+  --coral: #E06B52;
+  --coral-dim: rgba(224,107,82,0.1);
+  --blue: #5B9BD5;
+  --blue-dim: rgba(91,155,213,0.1);
+  --green: #6DB87F;
+  --green-dim: rgba(109,184,127,0.1);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --nav-h: 60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 16px); /* 2.4.11: keep focused elements visible below fixed nav */
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: .4;
+}
+
+/* ── GRID OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .5;
+}
+
+/* ── LAYOUT ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 40px; position: relative; z-index: 1; }
+
+section { padding: 100px 0; position: relative; z-index: 1; }
+section + section { border-top: 1px solid var(--border); }
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,8,14,0.85);
+}
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--gold); }
+
+/* ── HERO ── */
+.hero {
+  padding: 160px 0 100px;
+  text-align: center;
+}
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim2);
+  background: var(--gold-dim);
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 32px;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  color: #F0EBE0;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--gold);
+}
+.hero-sub {
+  font-size: 18px;
+  color: var(--text2);
+  max-width: 540px;
+  margin: 0 auto 56px;
+  font-weight: 300;
+  line-height: 1.6;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 64px;
+}
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 28px 36px;
+  text-align: center;
+  min-width: 160px;
+}
+.stat-card:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.stat-card:last-child  { border-radius: 0 var(--radius) var(--radius) 0; }
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+.hero-scroll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text3);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+/* ── FOCUS VISIBLE — WCAG 2.4.7 / 2.4.11 ── */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+/* Remove default outline only when :focus-visible is supported */
+:focus:not(:focus-visible) { outline: none; }
+
+/* ── REDUCED MOTION — WCAG 2.3.3 ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ── TOUCH TARGETS — WCAG 2.5.8 (44px min) ── */
+.pillar-tab   { min-height: 44px; }
+.play-btn     { min-height: 44px; min-width: 44px; }
+.mask-btn     { min-height: 44px; }
+.nav-links a  { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
+
+/* ── MINIMUM FONT SIZES (rem so browser zoom works) ── */
+.wf-badge     { font-size: 0.75rem; }   /* was 10px */
+.layer-tag    { font-size: 0.75rem; }   /* was 10px */
+.stat-label   { font-size: 0.75rem; }   /* was 12px, keep readable */
+.hero-eyebrow { font-size: 0.75rem; }   /* was 11px */
+.section-label { font-size: 0.75rem; }
+.wf-num, .wf-time { font-size: 0.75rem; }
+.sec-example  { font-size: 0.75rem; }
+.spec-table th { font-size: 0.75rem; }
+
+
+/* ── TYPOGRAPHY ── */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+  max-width: 80px;
+}
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #F0EBE0;
+  margin-bottom: 16px;
+}
+.lead {
+  font-size: 17px;
+  color: var(--text2);
+  font-weight: 300;
+  max-width: 600px;
+  line-height: 1.7;
+  margin-bottom: 56px;
+}
+
+/* ── ARCHITECTURE ── */
+.arch-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+.arch-layer {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.arch-layer:hover { border-color: var(--border2); }
+.arch-layer::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 0;
+}
+.arch-layer.layer-1::before { background: var(--gold); }
+.arch-layer.layer-2::before { background: var(--coral); }
+.arch-layer.layer-3::before { background: var(--teal); }
+.arch-layer.layer-4::before { background: var(--blue); }
+.arch-layer.layer-5::before { background: var(--text3); }
+.layer-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.layer-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid;
+}
+.layer-1 .layer-tag { color: var(--gold); border-color: var(--gold-dim2); background: var(--gold-dim); }
+.layer-2 .layer-tag { color: var(--coral); border-color: var(--coral-dim); background: var(--coral-dim); }
+.layer-3 .layer-tag { color: var(--teal);  border-color: var(--teal-dim);  background: var(--teal-dim); }
+.layer-4 .layer-tag { color: var(--blue);  border-color: var(--blue-dim);  background: var(--blue-dim); }
+.layer-5 .layer-tag { color: var(--text3); border-color: var(--border);    background: var(--bg3); }
+.layer-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: #F0EBE0;
+}
+.layer-desc {
+  color: var(--text2);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.node-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.node-pill {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: default;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.node-pill:hover { border-color: var(--border2); background: var(--bg); }
+.node-pill .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.node-pill.gold .dot { background: var(--gold); }
+.node-pill.teal .dot { background: var(--teal); }
+.node-pill.coral .dot { background: var(--coral); }
+.node-pill.blue .dot { background: var(--blue); }
+.node-pill.green .dot { background: var(--green); }
+.node-pill.muted .dot { background: var(--text3); }
+.arch-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 28px;
+  color: var(--text3);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  gap: 12px;
+}
+.arch-arrow::before, .arch-arrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 100px;
+}
+
+/* ── THREE PILLARS ── */
+.pillars-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 32px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+.pillar-tab {
+  flex: 1;
+  padding: 14px 24px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.pillar-tab .tab-cn {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  line-height: 1;
+}
+.pillar-tab .tab-en {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pillar-tab.active {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+}
+.pillar-tab.active .tab-cn { color: var(--gold); }
+.pillar-content { display: none; }
+.pillar-content.active { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.pillar-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.pillar-what, .pillar-how {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+.pillar-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.pillar-what .pillar-section-label { color: var(--gold); }
+.pillar-how  .pillar-section-label { color: var(--teal); }
+.pillar-what h3, .pillar-how h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: #F0EBE0;
+  margin-bottom: 12px;
+}
+.pillar-what p, .pillar-how p {
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.feature-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text2);
+}
+.feature-list li::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+.pillar-how .feature-list li::before { background: var(--teal); }
+.tech-stack {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tech-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--teal);
+  background: var(--teal-dim);
+  border: 1px solid rgba(42,191,170,0.2);
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+/* ── BP WORKFLOW ── */
+.workflow-wrapper {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.workflow-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.workflow-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: #F0EBE0;
+}
+.workflow-header p { color: var(--text2); font-size: 13px; }
+.play-btn {
+  background: var(--gold-dim2);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.play-btn:hover { background: var(--gold); color: var(--bg); }
+.play-btn svg { width: 14px; height: 14px; }
+.workflow-steps {
+  display: flex;
+  flex-direction: column;
+}
+.wf-step {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+.wf-step:last-child { border-bottom: none; }
+.wf-step.active { background: rgba(201,168,76,0.04); }
+.wf-step.done { background: rgba(42,191,170,0.03); }
+.wf-left {
+  padding: 20px 24px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wf-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
+.wf-step.active .wf-num { color: var(--gold); }
+.wf-step.done  .wf-num { color: var(--teal); }
+.wf-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text2);
+}
+.wf-step.active .wf-name { color: var(--text); }
+.wf-step.done  .wf-name { color: var(--text); }
+.wf-time {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+.wf-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-weight: 500;
+  margin-top: 4px;
+  width: fit-content;
+}
+.badge-auto { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(42,191,170,0.25); }
+.badge-claude { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(91,155,213,0.25); }
+.badge-human { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-dim2); }
+.wf-right {
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wf-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.wf-step.active .wf-desc { color: var(--text); }
+.wf-example {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: var(--text2);
+  line-height: 1.6;
+  display: none;
+  white-space: pre-wrap;
+}
+.wf-example .hi { color: var(--gold); }
+.wf-example .lo { color: var(--text3); }
+.wf-example .ok { color: var(--teal); }
+.wf-example .er { color: var(--coral); }
+.wf-step.active .wf-example { display: block; animation: fadeIn .25s ease; }
+.wf-progress {
+  height: 2px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.wf-progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, var(--gold), var(--teal));
+  width: 0%;
+  transition: width .5s ease;
+}
+
+/* ── DESENSITIZATION DEMO ── */
+.demo-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.demo-panel {
+  background: var(--bg2);
+  padding: 28px;
+}
+.demo-panel-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.demo-panel.raw .demo-panel-label { color: var(--coral); }
+.demo-panel.masked .demo-panel-label { color: var(--teal); }
+.demo-indicator {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.demo-panel.raw .demo-indicator { background: var(--coral); }
+.demo-panel.masked .demo-indicator { background: var(--teal); }
+#raw-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  resize: none;
+  height: 200px;
+  outline: none;
+  transition: border-color .2s;
+}
+#raw-input:focus { border-color: var(--border2); }
+#masked-output {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  height: 200px;
+  overflow-y: auto;
+  color: var(--text2);
+}
+.masked-entity {
+  background: var(--teal-dim);
+  border: 1px solid rgba(42,191,170,0.3);
+  color: var(--teal);
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+.masked-amount {
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.3);
+  color: var(--gold);
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+.demo-footer {
+  grid-column: 1 / -1;
+  background: var(--bg3);
+  border-top: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.demo-legend {
+  display: flex;
+  gap: 20px;
+  color: var(--text3);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+}
+.mask-btn {
+  background: var(--teal-dim);
+  border: 1px solid rgba(42,191,170,0.3);
+  color: var(--teal);
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+}
+.mask-btn:hover { background: var(--teal); color: var(--bg); }
+
+/* ── BEFORE/AFTER ── */
+.ba-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0;
+  align-items: start;
+}
+.ba-col {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.ba-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ba-col.before .ba-header { color: var(--text3); }
+.ba-col.after  .ba-header { color: var(--gold); }
+.ba-items { display: flex; flex-direction: column; }
+.ba-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.ba-item:last-child { border-bottom: none; }
+.ba-scenario {
+  padding: 16px 16px 16px 20px;
+  border-right: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+}
+.ba-content { padding: 16px 20px; }
+.ba-col.before .ba-content { color: var(--text2); font-size: 13px; }
+.ba-col.after  .ba-content { color: var(--text); font-size: 13px; }
+.ba-metric {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  display: block;
+  margin-top: 4px;
+}
+.ba-col.before .ba-metric { color: var(--text3); }
+.ba-col.after  .ba-metric { color: var(--gold); }
+.ba-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 0;
+}
+.ba-vs {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  color: var(--text3);
+  writing-mode: horizontal-tb;
+}
+.ba-arrow-down {
+  width: 1px;
+  flex: 1;
+  background: var(--border);
+  max-height: 200px;
+  position: relative;
+}
+
+/* ── SECURITY ── */
+.security-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.sec-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  transition: border-color .2s, transform .2s;
+}
+.sec-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.sec-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+.sec-card:nth-child(1) .sec-icon { background: var(--gold-dim); }
+.sec-card:nth-child(2) .sec-icon { background: var(--teal-dim); }
+.sec-card:nth-child(3) .sec-icon { background: var(--coral-dim); }
+.sec-card h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: #F0EBE0;
+  margin-bottom: 8px;
+}
+.sec-card p { color: var(--text2); font-size: 13px; line-height: 1.65; }
+.sec-example {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg3);
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.sec-before { color: var(--coral); }
+.sec-after  { color: var(--teal); }
+.sec-arrow  { color: var(--text3); }
+
+/* ── TECH SPEC ── */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.spec-table thead tr {
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+.spec-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.spec-table td {
+  padding: 14px 20px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+}
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table td:first-child { color: var(--text); font-weight: 500; }
+.spec-table td:last-child { font-size: 12px; color: var(--text3); }
+.spec-mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--teal);
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 48px 0;
+  text-align: center;
+  color: var(--text3);
+  font-size: 13px;
+  position: relative;
+  z-index: 1;
+}
+footer strong { color: var(--gold); font-weight: 500; }
+
+/* ── ANIMATIONS ON SCROLL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+
+/* ── RESPONSIVE ── */
+
+/* ── Tablet: ≤ 900px ── */
+@media (max-width: 900px) {
+  .spec-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ba-grid { grid-template-columns: 1fr; gap: 16px; }
+  .ba-divider { display: none; }
+  .security-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Mobile: ≤ 640px ── */
+@media (max-width: 640px) {
+  /* Layout */
+  .container { padding: 0 16px; }
+  section { padding: 60px 0; }
+  .hero { padding: 100px 0 60px; }
+
+  /* Nav — hide links, show hamburger */
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: var(--nav-h);
+    left: 0; right: 0;
+    background: rgba(8,8,14,0.98);
+    border-bottom: 1px solid var(--border2);
+    padding: 16px 24px 24px;
+    gap: 0;
+    z-index: 99;
+  }
+  .nav-links.open a {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    min-height: 48px;
+    font-size: 15px;
+  }
+  .nav-hamburger { display: flex; }
+
+  /* Hero */
+  .hero-sub { font-size: 16px; }
+  .hero-stats { flex-direction: column; align-items: center; gap: 8px; }
+  .stat-card {
+    border-radius: var(--radius) !important;
+    width: 100%;
+    max-width: 280px;
+    padding: 20px 24px;
+  }
+
+  /* Architecture */
+  .arch-layer { padding: 20px; }
+  .layer-header { flex-wrap: wrap; gap: 8px; }
+  .layer-title { font-size: 15px; }
+
+  /* Pillars */
+  .pillar-body { grid-template-columns: 1fr; gap: 16px; }
+  .pillar-what, .pillar-how { padding: 20px; }
+  .pillar-tab { padding: 10px 12px; }
+  .pillar-tab .tab-cn { font-size: 16px; }
+
+  /* Workflow */
+  .workflow-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .workflow-header .play-btn { align-self: flex-start; }
+  .wf-step { grid-template-columns: 1fr; }
+  .wf-left { border-right: none; border-bottom: 1px solid var(--border); }
+  .wf-right { padding: 16px 20px; }
+  .wf-example { overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 11px; }
+
+  /* Desensitization demo */
+  .demo-wrapper { grid-template-columns: 1fr; }
+  .demo-panel { padding: 20px; }
+  #raw-input { height: auto; min-height: 140px; }
+  #masked-output { height: auto; min-height: 140px; }
+  .demo-footer { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .demo-legend { flex-wrap: wrap; gap: 12px; }
+  .mask-btn { align-self: flex-end; }
+
+  /* Before/After */
+  .ba-grid { grid-template-columns: 1fr; gap: 16px; }
+  .ba-item { grid-template-columns: 80px 1fr; }
+
+  /* Security */
+  .security-grid { grid-template-columns: 1fr; }
+
+  /* Tech table */
+  .spec-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+  .spec-table td, .spec-table th { white-space: normal; min-width: 120px; }
+
+  /* MVP timeline — stack the 120px side column */
+  .mvp-row { grid-template-columns: 1fr !important; }
+  .mvp-label { border-right: none !important; border-bottom: 1px solid var(--border); }
+}
+
+/* ── HAMBURGER ── */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--text2);
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color .2s;
+}
+.nav-hamburger:hover, .nav-hamburger:focus-visible { color: var(--gold); }
+.nav-hamburger svg { width: 22px; height: 22px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">IIS · 投资情报系统</div>
+    <button class="nav-hamburger" id="nav-toggle" aria-label="打开导航菜单" aria-expanded="false" aria-controls="nav-menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <ul class="nav-links" id="nav-menu" role="list">
+      <li><a href="#architecture">架构</a></li>
+      <li><a href="#pillars">三大支柱</a></li>
+      <li><a href="#workflow">工作流</a></li>
+      <li><a href="#security">数据安全</a></li>
+      <li><a href="#comparison">价值对比</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="border-top:none">
+  <div class="container">
+    <div class="hero-eyebrow">一级市场投资情报系统 · MVP 设计方案</div>
+    <h1>让团队经验<em>活起来</em></h1>
+    <p class="hero-sub">基于 Hermes Agent 的投资知识管理系统——<br>会记忆、会干活、会成长的智能投研助手</p>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-num" data-count="500">0</div>
+        <div class="stat-label">年看项目数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" data-count="100">0</div>
+        <div class="stat-label">历史案例文档</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" data-suffix="min">25</div>
+        <div class="stat-label">BP分析时间</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" data-suffix="×">10</div>
+        <div class="stat-label">效率提升</div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>向下了解方案</span>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-label">系统架构</div>
+    <h2>五层架构，一体运转</h2>
+    <p class="lead">从飞书消息到分析结论，每一步都有明确的归属和边界。安全数据和 AI 推理在架构层隔离，不是事后补丁。</p>
+
+    <div class="arch-grid reveal">
+      <!-- Layer 1 -->
+      <div class="arch-layer layer-1">
+        <div class="layer-header">
+          <span class="layer-tag">Layer 1</span>
+          <span class="layer-title">飞书接入层 — 每人一个专属 Hermes</span>
+        </div>
+        <p class="layer-desc">每位投资经理拥有自己独立的 Hermes Agent 实例。各自有独立记忆、独立技能库、独立操作历史。就像团队里每个人有自己的工作方式，但共享同一套知识库。</p>
+        <div class="node-row">
+          <div class="node-pill gold"><span class="dot"></span>Hermes A · 投资经理甲</div>
+          <div class="node-pill gold"><span class="dot"></span>Hermes B · 投资经理乙</div>
+          <div class="node-pill gold"><span class="dot"></span>Hermes C · 投资经理丙</div>
+          <div class="node-pill gold"><span class="dot"></span>Hermes D · 分析师</div>
+          <div class="node-pill muted"><span class="dot"></span>持久记忆 · 技能库 · 浏览器能力 · 飞书原生集成</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">数据下行 · 进入安全处理</div>
+
+      <!-- Layer 2 -->
+      <div class="arch-layer layer-2">
+        <div class="layer-header">
+          <span class="layer-tag">Layer 2</span>
+          <span class="layer-title">安全脱敏层 — 本地执行，原始数据不出内网</span>
+        </div>
+        <p class="layer-desc">在任何数据发往 Claude API 之前，本层将敏感信息替换为代号。这是整套系统的信任边界。越过这条线的，只有代号。</p>
+        <div class="node-row">
+          <div class="node-pill coral"><span class="dot"></span>公司名 → COMP-042</div>
+          <div class="node-pill coral"><span class="dot"></span>创始人 → PERSON-007</div>
+          <div class="node-pill coral"><span class="dot"></span>融资金额 → [千万级]</div>
+          <div class="node-pill coral"><span class="dot"></span>细分赛道 → 泛化行业</div>
+          <div class="node-pill muted"><span class="dot"></span>SHA-256 代号 · 映射表本地存储 · 可逆还原</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">脱敏数据 · 分流三大支柱</div>
+
+      <!-- Layer 3 -->
+      <div class="arch-layer layer-3">
+        <div class="layer-header">
+          <span class="layer-tag">Layer 3</span>
+          <span class="layer-title">三大功能支柱 — 会记忆 · 会干活 · 会成长</span>
+        </div>
+        <p class="layer-desc">系统的核心能力层。每个支柱独立但互相协作——记忆提供上下文，干活消费上下文，成长优化上下文。</p>
+        <div class="node-row">
+          <div class="node-pill teal"><span class="dot"></span>会记忆 · 语义检索 · 可信召回 · 置信标注</div>
+          <div class="node-pill teal"><span class="dot"></span>会干活 · BP解析 · DD清单 · 分析草稿</div>
+          <div class="node-pill teal"><span class="dot"></span>会成长 · 结果追踪 · 经验提炼 · 技能迭代</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">落库 · 代号版本持久存储</div>
+
+      <!-- Layer 4 -->
+      <div class="arch-layer layer-4">
+        <div class="layer-header">
+          <span class="layer-tag">Layer 4</span>
+          <span class="layer-title">Supabase 共享知识库 — 团队记忆的物理载体</span>
+        </div>
+        <p class="layer-desc">所有 Hermes 实例共用一个数据库，写入的是代号版本。历史案例的向量索引让"找到类似的项目"从靠记忆变成毫秒级检索。</p>
+        <div class="node-row">
+          <div class="node-pill blue"><span class="dot"></span>PostgreSQL · 项目档案</div>
+          <div class="node-pill blue"><span class="dot"></span>pgvector · 语义向量索引</div>
+          <div class="node-pill blue"><span class="dot"></span>tasks 表 · Agent 任务队列</div>
+          <div class="node-pill blue"><span class="dot"></span>技能库 · 复盘记录</div>
+        </div>
+      </div>
+
+      <div class="arch-arrow">代号化数据 · 跨越信任边界</div>
+
+      <!-- Layer 5 -->
+      <div class="arch-layer layer-5">
+        <div class="layer-header">
+          <span class="layer-tag">Layer 5</span>
+          <span class="layer-title">Claude API（外部）— 只接触代号，永远看不到真实信息</span>
+        </div>
+        <p class="layer-desc">外部 AI 服务处于信任边界之外。即使 API 日志被泄露，泄露的也是"COMP-042 做了 X 事"，没有商业价值。代号还原只在本地发生。</p>
+        <div class="node-row">
+          <div class="node-pill muted"><span class="dot"></span>claude-sonnet · 深度分析</div>
+          <div class="node-pill muted"><span class="dot"></span>claude-haiku · 轻量任务</div>
+          <div class="node-pill muted"><span class="dot"></span>text-embedding-3-small · 向量生成</div>
+          <div class="node-pill muted"><span class="dot"></span>输入: 代号 · 输出: 代号 · 本地还原</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THREE PILLARS -->
+<section id="pillars">
+  <div class="container">
+    <div class="section-label">核心能力</div>
+    <h2>三大支柱，缺一不可</h2>
+    <p class="lead">不是三个独立功能，是一个飞轮：记忆提供历史上下文，干活消耗并产生新上下文，成长把结果沉淀回记忆。</p>
+
+    <div class="pillars-tabs reveal" role="tablist" aria-label="三大功能支柱">
+      <button class="pillar-tab active" role="tab" aria-selected="true" aria-controls="pillar-0" id="tab-0" onclick="switchPillar(0)">
+        <span class="tab-cn" aria-hidden="true">会记忆</span>
+        <span class="tab-en">Memory</span>
+      </button>
+      <button class="pillar-tab" role="tab" aria-selected="false" aria-controls="pillar-1" id="tab-1" onclick="switchPillar(1)">
+        <span class="tab-cn" aria-hidden="true">会干活</span>
+        <span class="tab-en">Execution</span>
+      </button>
+      <button class="pillar-tab" role="tab" aria-selected="false" aria-controls="pillar-2" id="tab-2" onclick="switchPillar(2)">
+        <span class="tab-cn" aria-hidden="true">会成长</span>
+        <span class="tab-en">Learning</span>
+      </button>
+    </div>
+
+    <!-- MEMORY -->
+    <div class="pillar-content active" id="pillar-0" role="tabpanel" aria-labelledby="tab-0" tabindex="0">
+      <div class="pillar-body">
+        <div class="pillar-what">
+          <div class="pillar-section-label">解决什么问题</div>
+          <h3>团队经验不再随人走</h3>
+          <p>现在：新同事入职，前辈积累的项目判断经验无法传递。离职就带走了。类似项目靠记忆找，经常漏掉。</p>
+          <p>系统化之后：100份历史案例全部向量化，任何人输入一个项目描述，3秒内找到最相似的历史案例，附带当时的判断依据和最终结果。</p>
+          <ul class="feature-list">
+            <li>语义检索：不需要记住关键词，描述项目方向就能找到</li>
+            <li>相似度分级：高于65%才展示，低于阈值明确告知"无历史参照"</li>
+            <li>来源标注：每条召回结果附原始文件名，可点击验证</li>
+            <li>投后结果挂钩：找到的历史案例标注"最终投了/Pass了"</li>
+          </ul>
+        </div>
+        <div class="pillar-how">
+          <div class="pillar-section-label">技术实现</div>
+          <h3>可信召回 · 四道防幻觉防线</h3>
+          <p>AI 的最大风险是"发明"一个听起来真实的历史案例。我们用四道机制确保每条召回都是真实的、可追溯的。</p>
+          <ul class="feature-list">
+            <li>向量相似度门槛：低于0.65的结果不展示，而不是强行类比</li>
+            <li>每条召回附原文片段：AI不能在没有来源的情况下引用历史案例</li>
+            <li>幻觉扫描：第二次 Claude 调用，专门标出哪些是推断、哪些有依据</li>
+            <li>分类标注输出：✓有依据 / ⚠推断 / ❌与历史矛盾，投资经理一眼识别</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-badge">pgvector</span>
+            <span class="tech-badge">text-embedding-3-small</span>
+            <span class="tech-badge">HNSW 索引</span>
+            <span class="tech-badge">余弦相似度</span>
+            <span class="tech-badge">search_similar_cases()</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXECUTION -->
+    <div class="pillar-content" id="pillar-1" role="tabpanel" aria-labelledby="tab-1" tabindex="0" hidden>
+      <div class="pillar-body">
+        <div class="pillar-what">
+          <div class="pillar-section-label">解决什么问题</div>
+          <h3>重复劳动由机器做，判断交给人</h3>
+          <p>现在：每份BP都要人工阅读、写摘要、想DD问题、查竞品。每份2-4小时，大量时间花在信息整理，不是判断。</p>
+          <p>系统化之后：上传BP，25分钟内自动完成：结构化摘要、相似案例召回、DD清单、初步分析草稿。人的时间用于创始人访谈和最终决策。</p>
+          <ul class="feature-list">
+            <li>BP解析：支持PDF/Word/扫描件，自动提取10个关键字段</li>
+            <li>DD清单生成：结合赛道特点和历史案例，按优先级排序</li>
+            <li>材料缺口检测：自动标注"BP中未提及但需核查"的信息</li>
+            <li>飞书推送：报告自动创建到飞书文档并@分析师</li>
+          </ul>
+        </div>
+        <div class="pillar-how">
+          <div class="pillar-section-label">技术实现</div>
+          <h3>Hermes 工作流 · 8步自动化管线</h3>
+          <p>从飞书接收文件到分析报告输出，8个步骤全自动串联。每步都有明确的输入输出，任何一步失败都有日志记录。</p>
+          <ul class="feature-list">
+            <li>Hermes 飞书 Lark adapter：文件上传自动触发，无需额外操作</li>
+            <li>脱敏在 Claude API 调用前执行，是代码层面的强制约束</li>
+            <li>两次 Claude 调用：第一次生成报告，第二次独立做幻觉扫描</li>
+            <li>代号还原只在最终输出阶段，存库的永远是代号版本</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-badge">Hermes Agent</span>
+            <span class="tech-badge">Lark Adapter</span>
+            <span class="tech-badge">pdfminer</span>
+            <span class="tech-badge">claude-sonnet</span>
+            <span class="tech-badge">Supabase</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEARNING -->
+    <div class="pillar-content" id="pillar-2" role="tabpanel" aria-labelledby="tab-2" tabindex="0" hidden>
+      <div class="pillar-body">
+        <div class="pillar-what">
+          <div class="pillar-section-label">解决什么问题</div>
+          <h3>投资经验沉淀成可检索的资产</h3>
+          <p>现在：项目归档就结束了。两年后同赛道的新项目来了，当初判断对还是错、漏看了什么，没有人记得，也没有地方查。</p>
+          <p>系统化之后：每个项目有结果更新（获下轮/增长数据/暴雷）时，自动触发复盘流程，把"当初判断 vs 实际结果"的对比写入知识库。</p>
+          <ul class="feature-list">
+            <li>判断复盘：当初的分析草稿和实际结果对比，识别判断盲区</li>
+            <li>季度报告：哪类公司判断最准？哪类风险点经常被低估？</li>
+            <li>经验自动提炼：高价值的复盘结论写入 Hermes 技能库</li>
+            <li>可审阅：技能库是 Markdown 文件，可直接打开检查和修改</li>
+          </ul>
+        </div>
+        <div class="pillar-how">
+          <div class="pillar-section-label">技术实现</div>
+          <h3>Hermes Curator · 技能自动迭代</h3>
+          <p>Hermes 的 Curator 机制：每当 Agent 解决了一个新问题，会把解法写成技能文件存在磁盘上。投资场景下，这意味着新赛道的分析框架会被自动记住。</p>
+          <ul class="feature-list">
+            <li>技能文件可读：不是黑盒的"自动学习"，是可以打开阅读的 Markdown</li>
+            <li>结果数据触发：飞书多维表格里更新项目状态，自动触发复盘</li>
+            <li>注意时间尺度：一级市场结果要等2-5年，头一年"成长"来自过程反馈</li>
+            <li>人工质检：每季度30分钟检查技能库有无错误经验需要纠正</li>
+          </ul>
+          <div class="tech-stack">
+            <span class="tech-badge">Hermes Curator</span>
+            <span class="tech-badge">MEMORY.md</span>
+            <span class="tech-badge">Skill Files</span>
+            <span class="tech-badge">Cron 轮询</span>
+            <span class="tech-badge">飞书多维表格</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <div class="container">
+    <div class="section-label">工作流示例</div>
+    <h2>一份BP，25分钟内发生了什么</h2>
+    <p class="lead">以"极光储能科技"的 Pre-A BP 为例。小李在飞书群里上传了 PDF，@Hermes 说了一句"帮我看看这个"。</p>
+
+    <div class="workflow-wrapper reveal">
+      <div class="workflow-header">
+        <div>
+          <h3>BP 自动化处理管线</h3>
+          <p>点击"运行演示"查看每步的实际输入输出</p>
+        </div>
+        <button class="play-btn" id="play-btn" onclick="runWorkflow()" aria-label="运行工作流演示">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+          运行演示
+        </button>
+      </div>
+      <div class="wf-progress"><div class="wf-progress-bar" id="wf-progress"></div></div>
+
+      <div class="workflow-steps">
+        <div class="wf-step" id="step-0">
+          <div class="wf-left">
+            <span class="wf-num">步骤 01</span>
+            <span class="wf-name">文件接收</span>
+            <span class="wf-time">~1 秒</span>
+            <span class="wf-badge badge-auto">全自动</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">飞书 Lark Adapter 监听到新附件，下载 PDF，用 pdfminer 提取原始文本。支持 PDF / Word / 扫描件（OCR）。</span>
+            <div class="wf-example"><span class="hi">EVENT:</span> message.file_created
+<span class="hi">file:</span> 极光储能_BP_2024Q4.pdf  <span class="lo">// 2.3MB</span>
+<span class="hi">action:</span> download → extract_text
+<span class="ok">text_chars:</span> 18,420  <span class="lo">// 提取成功</span></div>
+          </div>
+        </div>
+
+        <div class="wf-step" id="step-1">
+          <div class="wf-left">
+            <span class="wf-num">步骤 02</span>
+            <span class="wf-name">实体识别 + 脱敏</span>
+            <span class="wf-time">~30 秒</span>
+            <span class="wf-badge badge-auto">全自动</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">脱敏引擎扫描文本，识别公司名、人名、金额，替换为代号。代号由 SHA-256 决定，同一家公司永远是同一个代号。</span>
+            <div class="wf-example"><span class="er">极光储能科技（杭州）有限公司</span>  →  <span class="ok">COMP-089</span>
+<span class="er">王建明，前宁德时代总监</span>  →  <span class="ok">PERSON-034，前[能源科技]高管</span>
+<span class="er">融资需求 3000 万元</span>  →  <span class="ok">融资需求 [千万级]</span>
+<span class="er">固态电池 BMS 赛道</span>  →  <span class="ok">[能源科技] BMS 赛道</span>
+<span class="lo">// 映射写入 Supabase entity_aliases 表</span></div>
+          </div>
+        </div>
+
+        <div class="wf-step" id="step-2">
+          <div class="wf-left">
+            <span class="wf-num">步骤 03</span>
+            <span class="wf-name">结构化提取</span>
+            <span class="wf-time">~2 分钟</span>
+            <span class="wf-badge badge-claude">Claude API</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">脱敏后的文本发给 Claude，提取10个标准字段，返回 JSON。Claude 全程只看到代号，不知道这是哪家公司。</span>
+            <div class="wf-example">{
+  <span class="hi">"company_alias"</span>: <span class="ok">"COMP-089"</span>,
+  <span class="hi">"round"</span>: <span class="ok">"Pre-A"</span>,
+  <span class="hi">"industry_broad"</span>: <span class="ok">"能源科技"</span>,
+  <span class="hi">"amount_range"</span>: <span class="ok">"千万级"</span>,
+  <span class="hi">"business_model"</span>: <span class="ok">"直销+代理，面向工厂园区"</span>,
+  <span class="hi">"key_risks"</span>: [<span class="ok">"技术壁垒可复制性存疑"</span>, <span class="ok">"3家LOI客户集中度风险"</span>]
+}</div>
+          </div>
+        </div>
+
+        <div class="wf-step" id="step-3">
+          <div class="wf-left">
+            <span class="wf-num">步骤 04</span>
+            <span class="wf-name">历史案例召回</span>
+            <span class="wf-time">~1 分钟</span>
+            <span class="wf-badge badge-auto">向量检索</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">用项目摘要生成向量，在 pgvector 索引中检索相似历史案例。只返回相似度 ≥ 65% 的结果，低于阈值明确告知"无历史参照"。</span>
+            <div class="wf-example"><span class="hi">QUERY:</span> "工商业储能初创 BMS算法差异化 Pre-A"
+<span class="ok">MATCH 1:</span> COMP-042  similarity=<span class="hi">0.88</span>  <span class="lo">来源: 2022_储能_工商业.md</span>
+           outcome=<span class="er">PASSED</span>  reason=客户集中度过高
+<span class="ok">MATCH 2:</span> COMP-061  similarity=<span class="hi">0.71</span>  <span class="lo">来源: 2023_BMS_算法公司.md</span>
+           outcome=<span class="ok">INVESTED</span>  A轮估值翻2x</div>
+          </div>
+        </div>
+
+        <div class="wf-step" id="step-4">
+          <div class="wf-left">
+            <span class="wf-num">步骤 05</span>
+            <span class="wf-name">报告 + DD清单</span>
+            <span class="wf-time">~5 分钟</span>
+            <span class="wf-badge badge-claude">Claude API</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">把结构化数据 + 历史案例 + 赛道DD框架一起发给 Claude，生成完整的初步分析报告和按优先级排序的DD问题清单。</span>
+            <div class="wf-example"><span class="hi">## DD 优先问题清单</span>（按重要性排序）
+
+1. <span class="ok">3家LOI客户的付款进度？是否有独立客户？</span>
+   <span class="lo">// 参照 COMP-042 Pass 原因</span>
+2. <span class="ok">BMS算法的专利申请状态？核心代码IP保护？</span>
+3. <span class="ok">循环寿命数据是否有第三方测试报告？</span>
+4. <span class="lo">毛利率结构 · 竞业限制 · 股权结构 …（共8条）</span></div>
+          </div>
+        </div>
+
+        <div class="wf-step" id="step-5">
+          <div class="wf-left">
+            <span class="wf-num">步骤 06</span>
+            <span class="wf-name">幻觉扫描</span>
+            <span class="wf-time">~3 分钟</span>
+            <span class="wf-badge badge-claude">独立核查</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">第二次独立的 Claude 调用，以"质检员"身份对比报告与历史数据，标出每条结论的可信度类别，防止 AI 发明历史案例。</span>
+            <div class="wf-example"><span class="ok">✓ 有历史依据:</span> 客户集中度风险  <span class="lo">（COMP-042，2022_储能_工商业.md）</span>
+<span class="ok">✓ 有历史依据:</span> Pre-A毛利率普遍低于25%  <span class="lo">（COMP-037，行业研究）</span>
+<span class="er">⚠ AI推断:</span> BMS壁垒的技术可持续性  <span class="lo">（无直接历史依据）</span>
+<span class="er">⚠ AI推断:</span> 创始人背景的团队可比性  <span class="lo">（合理推断，需核实）</span></div>
+          </div>
+        </div>
+
+        <div class="wf-step" id="step-6">
+          <div class="wf-left">
+            <span class="wf-num">步骤 07</span>
+            <span class="wf-name">代号还原 + 存档</span>
+            <span class="wf-time">~30 秒</span>
+            <span class="wf-badge badge-auto">全自动</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">代号→真实名称的还原只在这一步发生。存入 Supabase 的是代号版本（保护隐私），输出给投资经理的是可读版本。</span>
+            <div class="wf-example"><span class="lo">// 存库（代号版，长期保存）</span>
+Supabase.projects: { company_alias: <span class="ok">"COMP-089"</span>, summary: [代号版报告] }
+
+<span class="lo">// 输出（还原版，给人阅读）</span>
+<span class="ok">COMP-089</span>  →  <span class="hi">极光储能科技（杭州）有限公司</span>
+<span class="ok">PERSON-034</span>  →  <span class="hi">王建明</span></div>
+          </div>
+        </div>
+
+        <div class="wf-step" id="step-7">
+          <div class="wf-left">
+            <span class="wf-num">步骤 08</span>
+            <span class="wf-name">飞书推送 + @通知</span>
+            <span class="wf-time">~1 分钟</span>
+            <span class="wf-badge badge-human">人工接手</span>
+          </div>
+          <div class="wf-right">
+            <span class="wf-desc">摘要卡片推送到飞书群，完整报告自动创建飞书文档，@相关分析师。人工工作从这里开始：判断、访谈、决策。</span>
+            <div class="wf-example"><span class="hi">@小李</span> 初步分析完成 ✓
+
+<span class="ok">极光储能科技</span> · Pre-A · 千万级
+相似历史案例: <span class="hi">2个</span>（最高相似度 88%）
+DD优先问题: <span class="hi">8条</span>
+初步结论: <span class="ok">继续推进</span>
+<span class="lo">⚠ 重点关注客户集中度（参照2022 Pass案例）</span>
+[查看完整报告 →]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY DEMO -->
+<section id="security">
+  <div class="container">
+    <div class="section-label">数据安全</div>
+    <h2>脱敏不是安全感，是架构约束</h2>
+    <p class="lead">很多系统把"加了权限控制"当作安全保障。这套系统的安全策略是：让敏感数据从物理上不存在于外部服务的调用链中。</p>
+
+    <div class="security-grid reveal">
+      <div class="sec-card">
+        <div class="sec-icon">🏷</div>
+        <h4>实体代号化</h4>
+        <p>公司名、创始人、机构名称——所有可识别实体在进入 AI 调用链前替换为代号。代号由 SHA-256 生成，不可逆推，不是顺序编号（COMP-001、002……），无法猜测。</p>
+        <div class="sec-example">
+          <span class="sec-before">极光储能科技（杭州）有限公司</span>
+          <span class="sec-arrow"> → </span>
+          <span class="sec-after">COMP-089</span><br>
+          <span class="sec-before">王建明</span>
+          <span class="sec-arrow"> → </span>
+          <span class="sec-after">PERSON-034</span>
+        </div>
+      </div>
+      <div class="sec-card">
+        <div class="sec-icon">💰</div>
+        <h4>金额区间化</h4>
+        <p>精确融资金额是高度敏感信息。3000万元 → [千万级]，不向 AI 暴露精确数字。区间足够让 AI 理解项目阶段，又不足以定位具体项目。</p>
+        <div class="sec-example">
+          <span class="sec-before">融资 3000 万 Pre-A</span>
+          <span class="sec-arrow"> → </span>
+          <span class="sec-after">[千万级] Pre-A</span><br>
+          <span class="sec-before">估值 1.5 亿</span>
+          <span class="sec-arrow"> → </span>
+          <span class="sec-after">[亿元级]</span>
+        </div>
+      </div>
+      <div class="sec-card">
+        <div class="sec-icon">🗂</div>
+        <h4>赛道泛化</h4>
+        <p>细分赛道描述太具体会间接暴露公司身份。"宁德时代供应链 · 固态电池 BMS"即使不提公司名也能被识别。统一泛化到二级行业分类。</p>
+        <div class="sec-example">
+          <span class="sec-before">固态电池 BMS 赛道</span>
+          <span class="sec-arrow"> → </span>
+          <span class="sec-after">能源科技</span><br>
+          <span class="sec-before">CAR-T 肿瘤免疫</span>
+          <span class="sec-arrow"> → </span>
+          <span class="sec-after">医疗健康</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive demo -->
+    <div style="margin-top: 40px;">
+      <div class="section-label" style="margin-bottom: 20px;">互动演示 · 输入文本，看脱敏效果</div>
+      <div class="demo-wrapper reveal">
+        <div class="demo-panel raw">
+          <div class="demo-panel-label">
+            <span class="demo-indicator" aria-hidden="true"></span>
+            原始文本（含敏感信息）
+          </div>
+          <textarea id="raw-input" placeholder="输入包含公司名、人名、金额的投资文本…">项目：芯澜科技（上海），创始人张伟，前华为海思资深工程师。
+本轮融资5000万元，A轮，投后估值3亿，主要投资方红杉资本。
+主营业务：车规级AI芯片，ADAS视觉感知算法。
+核心风险：地缘政治限制、英伟达竞争压力、流片成本高昂。</textarea>
+        </div>
+        <div class="demo-panel masked">
+          <div class="demo-panel-label">
+            <span class="demo-indicator" aria-hidden="true"></span>
+            脱敏后（发给 Claude API 的版本）
+          </div>
+          <div id="masked-output">
+            <span style="color:var(--text3);font-size:13px;">点击下方"执行脱敏"查看效果</span>
+          </div>
+        </div>
+        <div class="demo-footer">
+          <div class="demo-legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--teal)"></div>
+              <span style="color:var(--text2)">实体代号（公司/人名）</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--gold)"></div>
+              <span style="color:var(--text2)">金额区间</span>
+            </div>
+          </div>
+          <button class="mask-btn" onclick="runMask()">执行脱敏 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section id="comparison">
+  <div class="container">
+    <div class="section-label">价值对比</div>
+    <h2>同样的工作，两种体验</h2>
+    <p class="lead">不是用 AI 取代投资经理，而是把"处理信息"这件事交给机器，让人专注于只有人能做的判断和关系。</p>
+
+    <div class="ba-grid reveal">
+      <div class="ba-col before">
+        <div class="ba-header">当前现状</div>
+        <div class="ba-items">
+          <div class="ba-item">
+            <div class="ba-scenario">新BP接收</div>
+            <div class="ba-content">
+              手动阅读，飞书文档里手写摘要，字段不统一
+              <span class="ba-metric">⏱ 40-60 分钟 / 份</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">历史案例</div>
+            <div class="ba-content">
+              靠记忆，翻文件夹，经常漏掉，新同事完全无法继承
+              <span class="ba-metric">✗ 成功率约 40%</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">DD清单</div>
+            <div class="ba-content">
+              每次从头想，人走经验走，质量取决于当天状态
+              <span class="ba-metric">⏱ 1-2 小时 / 份</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">项目复盘</div>
+            <div class="ba-content">
+              归档即结束，投后结果无法回溯匹配当初判断
+              <span class="ba-metric">✗ 几乎不发生</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">新人入职</div>
+            <div class="ba-content">
+              重新手把手培训，团队历史经验无法系统传递
+              <span class="ba-metric">⏱ 3-6 个月磨合</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ba-divider">
+        <div class="ba-arrow-down"></div>
+        <span class="ba-vs">vs</span>
+        <div class="ba-arrow-down"></div>
+      </div>
+
+      <div class="ba-col after">
+        <div class="ba-header">接入系统后</div>
+        <div class="ba-items">
+          <div class="ba-item">
+            <div class="ba-scenario">新BP接收</div>
+            <div class="ba-content">
+              @Hermes上传，10个标准字段自动提取，结构统一
+              <span class="ba-metric">⏱ 2 分钟 / 份，全自动</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">历史案例</div>
+            <div class="ba-content">
+              语义检索100份历史案例，3秒返回最相似3个，附置信度和来源
+              <span class="ba-metric">✓ 成功率 &gt;90%（阈值控制）</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">DD清单</div>
+            <div class="ba-content">
+              结合赛道特点和历史案例自动生成，按优先级排序，附历史依据
+              <span class="ba-metric">⏱ &lt;5 分钟，有历史参照</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">项目复盘</div>
+            <div class="ba-content">
+              项目状态更新自动触发，当初判断 vs 实际结果自动对比
+              <span class="ba-metric">✓ 每个项目有结果即触发</span>
+            </div>
+          </div>
+          <div class="ba-item">
+            <div class="ba-scenario">新人入职</div>
+            <div class="ba-content">
+              入职即继承全团队历史案例和判断框架，Hermes 是随时可查的前辈
+              <span class="ba-metric">⏱ 1-2 周进入状态</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH SPEC -->
+<section id="tech">
+  <div class="container">
+    <div class="section-label">技术选型</div>
+    <h2>MVP 技术栈</h2>
+    <p class="lead">每个选型都有具体理由。没有炫技，只有适合4-5人小团队、兼职开发可维护的组合。</p>
+
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="技术选型表格，可横向滚动">
+    <table class="spec-table reveal">
+      <thead>
+        <tr>
+          <th>组件</th>
+          <th>选型</th>
+          <th>版本 / 规格</th>
+          <th>选择理由</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Agent 框架</td>
+          <td><span class="spec-mono">Hermes Agent</span></td>
+          <td><span class="spec-mono">v0.13.0+</span></td>
+          <td>原生飞书集成 · 持久记忆 · 技能库自迭代 · Claude API 后端</td>
+        </tr>
+        <tr>
+          <td>交互入口</td>
+          <td><span class="spec-mono">飞书 Lark Adapter</span></td>
+          <td><span class="spec-mono">官方支持</span></td>
+          <td>团队已用，无迁移成本，原生支持文件/消息/卡片</td>
+        </tr>
+        <tr>
+          <td>分析 LLM</td>
+          <td><span class="spec-mono">claude-sonnet-4</span></td>
+          <td><span class="spec-mono">200k context</span></td>
+          <td>长上下文处理完整 BP · 分析质量稳定 · 中文表现好</td>
+        </tr>
+        <tr>
+          <td>向量嵌入</td>
+          <td><span class="spec-mono">text-embedding-3-small</span></td>
+          <td><span class="spec-mono">1536 维</span></td>
+          <td>性价比最高 · 足以支撑100-500份文档的语义检索</td>
+        </tr>
+        <tr>
+          <td>数据库</td>
+          <td><span class="spec-mono">Supabase</span></td>
+          <td><span class="spec-mono">PostgreSQL + pgvector</span></td>
+          <td>托管零运维 · 结构化+向量一库搞定 · RLS 权限控制</td>
+        </tr>
+        <tr>
+          <td>Agent 实例隔离</td>
+          <td><span class="spec-mono">Hermes Profiles</span></td>
+          <td><span class="spec-mono">每人一个</span></td>
+          <td>独立记忆+技能库 · 共享知识库通过 Supabase MCP 接入</td>
+        </tr>
+        <tr>
+          <td>Agent 间通信</td>
+          <td><span class="spec-mono">Supabase tasks 表</span></td>
+          <td><span class="spec-mono">轮询间隔 5min</span></td>
+          <td>Hermes 原生不支持跨实例通信，数据库队列是最简实现</td>
+        </tr>
+        <tr>
+          <td>部署</td>
+          <td><span class="spec-mono">Render / Railway</span></td>
+          <td><span class="spec-mono">Git push 部署</span></td>
+          <td>push 自动部署 · 适合兼职开发 · 月费可控</td>
+        </tr>
+      </tbody>
+    </table>
+    </div><!-- /table scroll wrapper -->
+
+    <!-- MVP Timeline -->
+    <div style="margin-top: 56px;">
+      <h3 style="font-family:'Playfair Display',serif;font-size:26px;margin-bottom:8px;color:#F0EBE0">MVP 开发路线</h3>
+      <p style="color:var(--text2);font-size:15px;margin-bottom:32px;">按"有空就开发"的节奏，可在 8-10 周内完成核心功能</p>
+      <div style="display:flex;flex-direction:column;gap:2px;" class="reveal">
+        <div class="mvp-row" style="display:grid;grid-template-columns:120px 1fr;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden">
+          <div class="mvp-label" style="padding:20px;border-right:1px solid var(--border);background:rgba(201,168,76,0.06)">
+            <div style="font-size:11px;color:var(--gold);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">第一步</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text3)">2-3 周</div>
+          </div>
+          <div style="padding:20px">
+            <div style="font-weight:500;color:var(--text);margin-bottom:6px">历史案例整理 + 向量库建设</div>
+            <div style="color:var(--text2);font-size:13px">将100份历史案例整理为统一的5字段格式（背景/判断/风险/决策/复盘），脱敏后导入 Supabase，验证语义检索质量。这是整个系统的地基，也是验证核心假设的最关键一步。</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:120px 1fr;background:var(--bg2);border:1px solid var(--border);overflow:hidden">
+          <div class="mvp-label" style="padding:20px;border-right:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--teal);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">第二步</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text3)">2-3 周</div>
+          </div>
+          <div style="padding:20px">
+            <div style="font-weight:500;color:var(--text);margin-bottom:6px">Hermes 接入飞书</div>
+            <div style="color:var(--text2);font-size:13px">配置 Lark Adapter，写好每个实例的 SOUL.md（定义投资分析助手的人格和判断标准），连通 Supabase MCP。这时候 Hermes 还不做分析，但能在飞书里收发消息了。</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:120px 1fr;background:var(--bg2);border:1px solid var(--border);overflow:hidden">
+          <div class="mvp-label" style="padding:20px;border-right:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--blue);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">第三步</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text3)">2-3 周</div>
+          </div>
+          <div style="padding:20px">
+            <div style="font-weight:500;color:var(--text);margin-bottom:6px">BP 自动化管线</div>
+            <div style="color:var(--text2);font-size:13px">接上脱敏引擎 + Claude API 调用链，实现上传BP → 8步自动处理 → 飞书推送的完整流程。这一步完成后，"会干活"支柱基本可用。</div>
+          </div>
+        </div>
+        <div class="mvp-row" style="display:grid;grid-template-columns:120px 1fr;background:var(--bg2);border:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius);overflow:hidden">
+          <div class="mvp-label" style="padding:20px;border-right:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px">持续迭代</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text3)">每周</div>
+          </div>
+          <div style="padding:20px">
+            <div style="font-weight:500;color:var(--text);margin-bottom:6px">根据实际使用反馈优化</div>
+            <div style="color:var(--text2);font-size:13px">4人开始日常使用，每周30分钟查看 Hermes 技能库是否有错误经验需要纠正。"会成长"支柱的质量通过人工质检逐渐提升——这比依赖"自动学习"更可靠。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p style="font-family:'Playfair Display',serif;font-size:20px;color:#F0EBE0;margin-bottom:8px">投资情报系统 · Investment Intelligence System</p>
+    <p>基于 <strong>Hermes Agent</strong> · <strong>Claude API</strong> · <strong>Supabase</strong> 构建的一级市场投研知识管理平台</p>
+    <p style="margin-top:8px">MVP 设计方案 · 内部汇报版</p>
+  </div>
+</footer>
+
+<script>
+// ── COUNTER ANIMATION ──────────────────────────────────────────
+function animateCounter(el) {
+  const target = parseInt(el.dataset.count);
+  const suffix = el.dataset.suffix || '';
+  const duration = 1500;
+  const start = performance.now();
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = Math.round(target * eased);
+    el.textContent = value + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ── SCROLL REVEAL ──────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(el => {
+    if (el.isIntersecting) {
+      el.target.classList.add('visible');
+      // trigger counters
+      el.target.querySelectorAll('[data-count]').forEach(c => animateCounter(c));
+      observer.unobserve(el.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal, .hero-stats').forEach(el => observer.observe(el));
+
+// Auto-trigger hero stats since they might be visible on load
+setTimeout(() => {
+  document.querySelectorAll('[data-count]').forEach(c => {
+    if (!c.textContent || c.textContent === '0') animateCounter(c);
+  });
+}, 300);
+
+// ── PILLAR TABS ────────────────────────────────────────────────
+function switchPillar(idx) {
+  document.querySelectorAll('.pillar-tab').forEach((t,i) => {
+    const active = i === idx;
+    t.classList.toggle('active', active);
+    t.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  document.querySelectorAll('.pillar-content').forEach((c,i) => {
+    const active = i === idx;
+    c.classList.toggle('active', active);
+    // Use hidden attribute for proper ARIA hide
+    if (active) { c.removeAttribute('hidden'); } else { c.setAttribute('hidden', ''); }
+  });
+}
+
+// ── WORKFLOW ANIMATION ─────────────────────────────────────────
+let wfRunning = false;
+let wfIndex = -1;
+
+function runWorkflow() {
+  if (wfRunning) {
+    wfRunning = false;
+    const btn = document.querySelector('.play-btn');
+    btn.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><path d="M3 2l10 6-10 6V2z"/></svg> 运行演示';
+    return;
+  }
+  // Clear previous state first
+  document.querySelectorAll('.wf-step').forEach(s => s.classList.remove('active','done'));
+  document.getElementById('wf-progress').style.width = '0%';
+  // Then start
+  const btn = document.querySelector('.play-btn');
+  btn.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><rect x="3" y="2" width="4" height="12" rx="1"/><rect x="9" y="2" width="4" height="12" rx="1"/></svg> 停止';
+  wfRunning = true;
+  wfIndex = -1;
+  runNextStep();
+}
+
+function resetWorkflow() {
+  wfRunning = false;
+  wfIndex = -1;
+  const btn = document.querySelector('.play-btn');
+  btn.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><path d="M3 2l10 6-10 6V2z"/></svg> 运行演示';
+  document.querySelectorAll('.wf-step').forEach(s => s.classList.remove('active','done'));
+  document.getElementById('wf-progress').style.width = '0%';
+}
+
+function runNextStep() {
+  if (!wfRunning) return;
+  wfIndex++;
+  const steps = document.querySelectorAll('.wf-step');
+  if (wfIndex >= steps.length) {
+    wfRunning = false;
+    const lastStep = document.getElementById("step-"+(wfIndex-1));
+    if (lastStep) { lastStep.classList.remove("active"); lastStep.classList.add("done"); }
+    document.getElementById("wf-progress").style.width = "100%";
+    document.querySelector(".play-btn").innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><path d="M3 2l10 6-10 6V2z"/></svg> 重新演示';
+    return;
+  }
+  // Mark previous as done
+  if (wfIndex > 0) {
+    document.getElementById('step-'+(wfIndex-1)).classList.remove('active');
+    document.getElementById('step-'+(wfIndex-1)).classList.add('done');
+  }
+  const step = document.getElementById('step-'+wfIndex);
+  step.classList.add('active');
+  step.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // Progress bar
+  const pct = ((wfIndex + 1) / steps.length) * 100;
+  document.getElementById('wf-progress').style.width = pct + '%';
+  // Determine delay based on step type
+  const delays = [800, 1200, 2000, 1500, 3000, 2500, 1000, 1200];
+  setTimeout(runNextStep, delays[wfIndex] || 1500);
+}
+
+// ── DESENSITIZATION DEMO ───────────────────────────────────────
+const COMPANY_DB = {
+  '芯澜科技': 'COMP-142',
+  '华为海思': 'ORG-019',
+  '红杉资本': 'ORG-007',
+  '宁德时代': 'ORG-031',
+  '极光储能': 'COMP-089',
+  '深圳市': 'CITY-A',
+};
+const PERSON_DB = {
+  '张伟': 'PERSON-056',
+  '王建明': 'PERSON-034',
+  '李文静': 'PERSON-041',
+};
+const AMOUNT_MAP = [
+  [/(\d+(?:\.\d+)?)\s*亿/g, (m,n) => {
+    const v = parseFloat(n)*10000;
+    return v < 50000 ? '[亿元级]' : '[数亿级]';
+  }],
+  [/(\d+(?:\.\d+)?)\s*万/g, (m,n) => {
+    const v = parseFloat(n);
+    if (v < 500) return '[百万级]';
+    if (v < 2000) return '[千万级]';
+    if (v < 5000) return '[数千万级]';
+    return '[亿元级]';
+  }],
+];
+const INDUSTRY_MAP = {
+  '固态电池': '能源科技', 'BMS': '能源科技', '储能': '能源科技',
+  'ADAS': '先进制造', 'AI芯片': '人工智能', '视觉感知': '人工智能',
+  '车规级': '先进制造', 'CAR-T': '医疗健康', '肿瘤': '医疗健康',
+  'SaaS': '企业软件', '大模型': '人工智能',
+};
+
+function runMask() {
+  const raw = document.getElementById('raw-input').value;
+  let text = raw;
+
+  // 1. Companies
+  const compReplacements = {};
+  for (const [name, alias] of Object.entries(COMPANY_DB)) {
+    if (text.includes(name)) {
+      text = text.split(name).join(`__COMP__${alias}__`);
+      compReplacements[`__COMP__${alias}__`] = alias;
+    }
+  }
+  // 2. Persons
+  const personReplacements = {};
+  for (const [name, alias] of Object.entries(PERSON_DB)) {
+    if (text.includes(name)) {
+      text = text.split(name).join(`__PERSON__${alias}__`);
+      personReplacements[`__PERSON__${alias}__`] = alias;
+    }
+  }
+  // 3. Amounts
+  for (const [pattern, replacer] of AMOUNT_MAP) {
+    text = text.replace(pattern, (m, n) => `__AMT__${replacer(m,n)}__`);
+  }
+  // 4. Industries
+  for (const [term, broad] of Object.entries(INDUSTRY_MAP)) {
+    text = text.split(term).join(broad);
+  }
+
+  // Now render HTML with highlights
+  let html = text
+    .replace(/__COMP__([^_]+)__/g, '<span class="masked-entity">$1</span>')
+    .replace(/__PERSON__([^_]+)__/g, '<span class="masked-entity">$1</span>')
+    .replace(/__AMT__([^_]+)__/g, '<span class="masked-amount">$1</span>')
+    .replace(/\n/g, '<br>');
+
+  document.getElementById('masked-output').innerHTML = html;
+}
+
+// ── SMOOTH NAV ─────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    // Close mobile menu if open
+    const menu = document.getElementById('nav-menu');
+    const tog  = document.getElementById('nav-toggle');
+    menu.classList.remove('open');
+    tog.setAttribute('aria-expanded', 'false');
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// ── HAMBURGER MENU ──────────────────────────────────────────────
+document.getElementById('nav-toggle').addEventListener('click', function() {
+  const menu = document.getElementById('nav-menu');
+  const open = menu.classList.toggle('open');
+  this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  this.setAttribute('aria-label', open ? '关闭导航菜单' : '打开导航菜单');
+});
+
+// Close on outside click
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('nav-menu');
+  const tog  = document.getElementById('nav-toggle');
+  if (menu.classList.contains('open') && !menu.contains(e.target) && !tog.contains(e.target)) {
+    menu.classList.remove('open');
+    tog.setAttribute('aria-expanded', 'false');
+  }
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const menu = document.getElementById('nav-menu');
+    const tog  = document.getElementById('nav-toggle');
+    if (menu.classList.contains('open')) {
+      menu.classList.remove('open');
+      tog.setAttribute('aria-expanded', 'false');
+      tog.focus();
+    }
+  }
+});
+
+// ── KEYBOARD NAV FOR TABS (arrow keys) — WCAG 2.1.1 ────────────
+document.querySelectorAll('[role="tablist"]').forEach(tablist => {
+  tablist.addEventListener('keydown', function(e) {
+    const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+    const cur  = tabs.indexOf(document.activeElement);
+    if (cur === -1) return;
+    let next = -1;
+    if (e.key === 'ArrowRight') next = (cur + 1) % tabs.length;
+    if (e.key === 'ArrowLeft')  next = (cur - 1 + tabs.length) % tabs.length;
+    if (e.key === 'Home') next = 0;
+    if (e.key === 'End')  next = tabs.length - 1;
+    if (next !== -1) {
+      e.preventDefault();
+      tabs[next].focus();
+      tabs[next].click();
+    }
+  });
+});
+</script>
+</body>
+</html>
